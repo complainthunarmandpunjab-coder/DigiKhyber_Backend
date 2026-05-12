@@ -14,6 +14,15 @@ const config = require('./config/config');
 const app = express();
 const PORT = config.port;
 
+const fs = require('fs');
+if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
+  fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
+}
+
+if (!fs.existsSync(path.join(__dirname, 'images'))) {
+  fs.mkdirSync(path.join(__dirname, 'images'), { recursive: true });
+}
+
 
 
 console.log("PORT",PORT);
