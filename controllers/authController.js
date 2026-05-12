@@ -173,20 +173,21 @@ exports.signup = async (req, res) => {
     // Send welcome/verification email
     const html = `<h1>Welcome to Digikhyber!</h1><p>Dear ${user.fullName}, your registration is successful. Your Roll Number is <b>${user.rollNumber}</b>.</p>`;
     
-    const emailResult = await sendEmail({
+    sendEmail({
       email: user.email,
       subject: "Welcome to Digikhyber - Registration Successful",
       html: html,
       emailType: 'verification',
+    }).then(emailResult => {
+      console.log('[SIGNUP EMAIL] Result:', JSON.stringify(emailResult));
+      if (!emailResult.success) {
+        console.error('[SIGNUP EMAIL] FAILED TO SEND EMAIL:', emailResult.error);
+      } else {
+        console.log('[SIGNUP EMAIL] Email sent successfully to:', user.email);
+      }
+    }).catch(err => {
+      console.error('[SIGNUP EMAIL] UNEXPECTED ERROR:', err);
     });
-
-    console.log('[SIGNUP EMAIL] Result:', JSON.stringify(emailResult));
-
-    if (!emailResult.success) {
-      console.error('[SIGNUP EMAIL] FAILED TO SEND EMAIL:', emailResult.error);
-    } else {
-      console.log('[SIGNUP EMAIL] Email sent successfully to:', user.email);
-    }
 
     res.status(201).json({
       message: "User created successfully. You can login now.",
