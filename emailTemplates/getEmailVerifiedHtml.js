@@ -1,4 +1,4 @@
-function getEmailVerifiedHtml({ userName, rollNumber }) {
+function getEmailVerifiedHtml({ userName, rollNumber, challanNumber }) {
   return `
     <!DOCTYPE html>
     <html>
@@ -26,6 +26,10 @@ function getEmailVerifiedHtml({ userName, rollNumber }) {
               <p style="font-size: 15px; color: #555; margin: 0;">
                 <strong>Your Roll Number:</strong> <span style="color: #007bff;">${rollNumber}</span>
               </p>
+              ${challanNumber ? `
+              <p style="font-size: 15px; color: #555; margin: 5px 0 0 0;">
+                <strong>Your Challan Number:</strong> <span style="color: #dc3545;">${challanNumber}</span>
+              </p>` : ''}
             </div>
             
             <p style="font-size: 16px; color: #555555;">

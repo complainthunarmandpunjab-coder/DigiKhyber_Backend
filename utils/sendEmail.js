@@ -16,15 +16,16 @@ const sendEmail = async (options) => {
     const fromEmail = authUser; // Force match
 
     console.log(`[EMAIL DEBUG] Host: ${process.env.SMTP_HOST}`);
-    console.log(`[EMAIL DEBUG] Port: ${process.env.SMTP_PORT}`);
+    console.log(`[EMAIL DEBUG] Port: ${process.env.SMTP_PORT || 465}`);
     console.log(`[EMAIL DEBUG] Auth User: ${authUser}`);
-    console.log(`[EMAIL DEBUG] From: ${fromEmail}`);
+    console.log(`[EMAIL DEBUG] From: "${fromName}" <${fromEmail}>`);
     console.log(`[EMAIL DEBUG] To: ${options.email}`);
+    console.log(`[EMAIL DEBUG] Subject: ${options.subject}`);
     console.log(`[EMAIL DEBUG] Password set: ${authPass ? 'YES' : 'NO'}`);
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: 465,
+      port: parseInt(process.env.SMTP_PORT) || 465,
       secure: true, // Always true for port 465 (SSL)
       auth: {
         user: authUser,
@@ -40,7 +41,7 @@ const sendEmail = async (options) => {
     console.log("[EMAIL DEBUG] SMTP connection verified successfully!");
 
     const message = {
-      from: authUser,
+      from: `"${fromName}" <${authUser}>`,
       to: options.email,
       subject: options.subject,
       text: options.message,
