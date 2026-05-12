@@ -2,22 +2,18 @@ const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
   try {
-    // Determine From address based on email type
+    // Hostinger requires From address to match Auth user exactly
+    const authUser = process.env.FROM_EMAIL || "noreply@hunarmandpunjab.com";
+    const authPass = process.env.SMTP_PASSWORD;
+    
     let fromName = "Digikhyber";
-    let fromEmail = process.env.VERIFICATION_EMAIL || "noreply@digikhyber.com";
-
     if (options.emailType === "admissions") {
-      fromEmail = process.env.ADMISSIONS_EMAIL || "admissions@digikhyber.com";
       fromName = "Digikhyber Admissions";
     } else if (options.emailType === "contact") {
-      fromEmail = process.env.CONTACT_EMAIL || "contact@digikhyber.com";
       fromName = "Digikhyber Support";
     }
 
-    // Always authenticate with the FROM_EMAIL (main sending account)
-    // Hostinger requires auth user = sending email
-    const authUser = process.env.FROM_EMAIL || fromEmail;
-    const authPass = process.env.SMTP_PASSWORD;
+    const fromEmail = authUser; // Force match
 
     console.log(`[EMAIL DEBUG] Host: ${process.env.SMTP_HOST}`);
     console.log(`[EMAIL DEBUG] Port: ${process.env.SMTP_PORT}`);
@@ -44,9 +40,8 @@ const sendEmail = async (options) => {
     console.log("[EMAIL DEBUG] SMTP connection verified successfully!");
 
     const message = {
-      from: `"${fromName}" <${authUser}>`,
+      from: authUser,
       to: options.email,
-      bcc: process.env.ADMIN_EMAIL,
       subject: options.subject,
       text: options.message,
       html: options.html,

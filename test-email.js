@@ -15,7 +15,7 @@ async function testEmail() {
     port: 465,
     secure: true,
     auth: {
-      user: process.env.FROM_EMAIL,
+      user: 'contact@hunarmandpunjab.com',
       pass: process.env.SMTP_PASSWORD,
     },
     tls: {
@@ -29,7 +29,7 @@ async function testEmail() {
     console.log('✅ SMTP Connection VERIFIED! Sending test email...');
 
     const info = await transporter.sendMail({
-      from: `"Digikhyber Test" <${process.env.FROM_EMAIL}>`,
+      from: `"Digikhyber Test" <contact@hunarmandpunjab.com>`,
       to: process.env.ADMIN_EMAIL,
       subject: 'Digikhyber - Email Test',
       html: '<h1>Email is working!</h1><p>This is a test email from Digikhyber portal.</p>',
