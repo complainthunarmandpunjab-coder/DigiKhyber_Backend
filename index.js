@@ -60,7 +60,7 @@ mongoose.connect(config.mongodbUri)
     }
 
     // Start the server after successful MongoDB connection
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
     });
   })
