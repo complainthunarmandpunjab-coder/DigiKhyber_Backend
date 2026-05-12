@@ -124,9 +124,9 @@ const signupValidation = [
     const form = value || req.body.form || "signup"; // Default to signup
     
     if (form === "admission") {
-      // For physical admission, check for firstCourse and secondCourse (will be stored as physicalCourses)
-      if (!req.body.firstCourse || !req.body.secondCourse) {
-        throw new Error("Both firstCourse and secondCourse are required for physical admission");
+      // For physical admission, check for firstCourse
+      if (!req.body.firstCourse) {
+        throw new Error("firstCourse is required for physical admission");
       }
     } else if (form === "signup") {
       // For online signup, firstCourse is required

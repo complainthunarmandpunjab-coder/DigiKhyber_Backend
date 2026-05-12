@@ -84,12 +84,12 @@ exports.signup = async (req, res) => {
       // Update courses based on form type and existing admission types
       if (form === "signup" && admissionType === "online") {
         // User is adding online courses
-        existingUser.courses = [firstCourse, secondCourse];
+        existingUser.courses = [firstCourse, secondCourse].filter(Boolean);
         existingUser.cnicBack = cnicBack || null;
         existingUser.cnicFront = cnicFront || null;
       } else if (form === "admission" && admissionType === "physical") {
         // User is adding physical courses
-        existingUser.physicalCourses = [firstCourse, secondCourse];
+        existingUser.physicalCourses = [firstCourse, secondCourse].filter(Boolean);
         existingUser.photo = photo || null;
       }
 
@@ -136,9 +136,9 @@ exports.signup = async (req, res) => {
 
     // Make courses arrays based on form type
     const courses =
-      form === "admission" ? undefined : [firstCourse, secondCourse];
+      form === "admission" ? undefined : [firstCourse, secondCourse].filter(Boolean);
     const physicalCourses =
-      form === "admission" ? [firstCourse, secondCourse] : undefined;
+      form === "admission" ? [firstCourse, secondCourse].filter(Boolean) : undefined;
 
     // Create new user with all fields
     const user = new User({
@@ -454,12 +454,12 @@ exports.verifyEmail = async (req, res) => {
 
     // Even if email fails, the verification is successful, so redirect
     // but we could log the email failure for monitoring
-    if (!emailResult.success) {
-      console.error(
-        "Email verification confirmation failed:",
-        emailResult.error
-      );
-    }
+    // if (!emailResult.success) {
+    //   console.error(
+    //     "Email verification confirmation failed:",
+    //     emailResult.error
+    //   );
+    // }
 
     return res.redirect("https://digikhyber.org.pk/login");
   } catch (error) {
