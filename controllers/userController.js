@@ -163,19 +163,23 @@ exports.updateTestScore = async (req, res) => {
         rollNumber: updatedUser.rollNumber,
       });
 
-      const emailResult = await sendEmail({
+      sendEmail({
         email: updatedUser.email,
         subject:
           "Congratulations! You Have Passed the Admission Test – Now You Are Eligible For Digikhyber Scholarship Card",
         html: testPassedHtml,
         emailType: "admissions",
+      }).then(emailResult => {
+        if (!emailResult.success) {
+          console.error('[TEST EMAIL] FAILED TO SEND:', emailResult.error);
+        }
+      }).catch(err => {
+        console.error('[TEST EMAIL] UNEXPECTED ERROR:', err);
       });
 
       return res.status(200).json({
         status: "success",
         message: "Test score updated successfully",
-        emailSent: emailResult.success,
-        emailError: emailResult.success ? null : emailResult.error,
         data: {
           testScore: updatedUser.testScore,
           testPassed: updatedUser.testPassed,
