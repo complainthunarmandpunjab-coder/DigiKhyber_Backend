@@ -11,6 +11,14 @@ router.use(authMiddleware);
 // PDF generation route
 router.post('/generate-pdf/:isSecondEnroll', generateAndSendPDF);
 
+// PSID generation route
+router.post('/generate-psid', (req, res, next) => {
+  // Use generateAndSendPDF but modified for PSID if needed, 
+  // or just create a new controller function.
+  // For now, I will use a new function called generatePsid
+  next();
+}, require('../controllers/userController').generatePsid);
+
 // Test score update route
 router.post('/test', updateTestScore);
 

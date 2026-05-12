@@ -489,3 +489,53 @@ exports.updateSecondEnrolledCourses = async (req, res) => {
     });
   }
 };
+
+exports.generatePsid = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ status: "error", message: "Unauthorized" });
+    }
+
+    const amount = 3250;
+    
+    // Check if user already has a challan with PSID
+    let challan = await Challan.findOne({ userId: user._id });
+    
+    if (challan && challan.psid) {
+      return res.status(200).json({
+        status: "success",
+        message: "Existing PSID found",
+        data: { psid: challan.psid, amount: challan.amount }
+      });
+    }
+
+    // Generate a random 15-digit PSID for 1Bill
+    const psid = "1000" + Math.floor(Math.random() * 90000000000 + 10000000000).toString();
+
+    if (!challan) {
+      // Create new challan if none exists
+      challan = new Challan({
+        userId: user._id,
+        challanId: "CH-" + Date.now(),
+        amount: amount,
+        psid: psid
+      });
+    } else {
+      // Update existing challan with PSID
+      challan.psid = psid;
+    }
+
+    await challan.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "PSID generated successfully",
+      data: { psid, amount }
+    });
+  } catch (error) {
+    console.error("PSID generation error:", error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+

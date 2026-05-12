@@ -14,6 +14,10 @@ const challanSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    psid: {
+      type: String,
+      default: null,
+    },
     paid: {
       type: Boolean,
       default: false,
