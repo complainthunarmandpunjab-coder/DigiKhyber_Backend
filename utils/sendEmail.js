@@ -16,7 +16,7 @@ const sendEmail = async (options) => {
     const fromEmail = authUser; // Force match
 
     console.log(`[EMAIL DEBUG] Host: ${process.env.SMTP_HOST}`);
-    const port = parseInt(process.env.SMTP_PORT) || 587;
+    const port = parseInt(process.env.SMTP_PORT) || 2525;
     const isSecure = port === 465;
 
     console.log(`[EMAIL DEBUG] Host: ${process.env.SMTP_HOST}`);
@@ -31,16 +31,18 @@ const sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: port,
-      secure: isSecure, // true for 465, false for other ports
+      secure: isSecure,
       auth: {
         user: authUser,
         pass: authPass,
       },
       tls: {
         rejectUnauthorized: false,
-        // For port 587, some providers need this
         minVersion: 'TLSv1.2'
       },
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
 
     // Verify SMTP connection before sending
