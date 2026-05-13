@@ -106,12 +106,16 @@ app.use('/api/scholarship', scholarshipRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Export the app for Vercel
-module.exports = app;
+// Use routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes); 
+app.use('/api/bank', bankRoutes); 
+app.use('/api/scholarship', scholarshipRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api/admin', adminRoutes);
 
-// Only listen if not on Vercel
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+
+// Start the server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
