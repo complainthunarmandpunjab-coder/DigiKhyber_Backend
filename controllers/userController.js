@@ -157,13 +157,13 @@ exports.updateTestScore = async (req, res) => {
 
     // If user passed the test, generate challan and send an email
     if (updatedUser.testPassed === true) {
+      console.log(`[TEST SCORE] User ${updatedUser.email} passed. Starting post-pass process...`);
       let challanNumber = "N/A";
       
       try {
-        // Check if user already has a challan
         let existingChallan = await Challan.findOne({ userId: updatedUser._id });
-        
         if (!existingChallan) {
+          console.log('[TEST SCORE] Generating new challan...');
           const amount = 3250;
           const pdfResult = await generatePDF(updatedUser, amount, updatedUser.courses || updatedUser.physicalCourses);
           challanNumber = pdfResult.challanNumber;
@@ -175,44 +175,39 @@ exports.updateTestScore = async (req, res) => {
             path: pdfResult.filePath,
           });
           await newChallan.save();
+          console.log(`[TEST SCORE] Challan ${challanNumber} saved to DB.`);
         } else {
           challanNumber = existingChallan.challanId;
+          console.log(`[TEST SCORE] Using existing challan: ${challanNumber}`);
         }
       } catch (err) {
-        console.error('[TEST SCORE] Failed to handle challan generation:', err);
+        console.error('[TEST SCORE] Challan generation error:', err.message);
       }
 
+      console.log('[TEST SCORE] Preparing email template...');
       const testPassedHtml = getTestPassedEmailHtml({
         userName: updatedUser.fullName,
         testScore: updatedUser.testScore,
         rollNumber: updatedUser.rollNumber,
         challanNumber: challanNumber,
       });
+      console.log('[TEST SCORE] Sending email...');
+      try {
+        const emailResult = await sendEmail({
+          email: updatedUser.email,
+          subject: "Congratulations! You Have Passed the Admission Test",
+          html: testPassedHtml,
+          emailType: "admissions",
+        });
 
-      sendEmail({
-        email: updatedUser.email,
-        subject:
-          "Congratulations! You Have Passed the Admission Test – Now You Are Eligible For Digikhyber Scholarship Card",
-        html: testPassedHtml,
-        emailType: "admissions",
-      }).then(emailResult => {
-        if (!emailResult.success) {
-          console.error('[TEST EMAIL] FAILED TO SEND:', emailResult.error);
+        if (emailResult.success) {
+          console.log('[TEST SCORE] Email sent successfully to', updatedUser.email);
+        } else {
+          console.error('[TEST SCORE] Email delivery failed:', emailResult.error);
         }
-      }).catch(err => {
-        console.error('[TEST EMAIL] UNEXPECTED ERROR:', err);
-      });
-
-      return res.status(200).json({
-        status: "success",
-        message: "Test score updated successfully. Enrollment email sent.",
-        data: {
-          testScore: updatedUser.testScore,
-          testPassed: updatedUser.testPassed,
-          rollNumber: updatedUser.rollNumber,
-          challanNumber: challanNumber
-        },
-      });
+      } catch (emailErr) {
+        console.error('[TEST SCORE] Critical email error:', emailErr.message);
+      }
     }
 
     return res.status(200).json({
