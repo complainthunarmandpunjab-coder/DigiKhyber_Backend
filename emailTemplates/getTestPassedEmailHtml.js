@@ -12,98 +12,78 @@ function getTestPassedEmailHtml({
       <meta charset="UTF-8" />
       <title>Congratulations! You Have Passed the Admission Test</title>
     </head>
-    <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9f9f9;">
-      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #ddd; margin-top: 20px;">
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000000; color: #ffffff;">
+      <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #1a1c1e; margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #333;">
         <tr>
-          <td style="text-align: center;">
-            <img src="https://digikhyber.org.pk/images/email_banner.png" alt="Digikhyber" style="width: 100%; max-width: 600px;" />
+          <td style="text-align: center; background-color: #ffffff; padding: 10px;">
+            <img src="https://digikhyber.org.pk/images/email_banner.png" alt="Digikhyber" style="width: 100%; max-width: 500px;" />
           </td>
         </tr>
         <tr>
-          <td style="padding: 30px;">
-            <h2 style="color: #28a745;">🎉 Congratulations! You Have Passed the Admission Test</h2>
-            <h3 style="color: #333333;">Now You Are Eligible For Digikhyber Scholarship Card</h3>
+          <td style="padding: 40px 30px;">
+            <h1 style="color: #ffffff; font-size: 28px; margin-bottom: 5px; text-align: center;">💰 Your Challan is Ready!</h1>
+            <h2 style="color: #cccccc; font-size: 20px; margin-top: 0; font-weight: normal; text-align: center; border-bottom: 1px solid #333; padding-bottom: 20px;">Processing Fee Payment Details</h2>
             
-            <p style="font-size: 16px; color: #555555;">
+            <p style="font-size: 18px; color: #ffffff; margin-top: 30px;">
               Dear <strong>${userName}</strong>,
             </p>
             
-            <p style="font-size: 16px; color: #555555;">
-              We are thrilled to inform you that you have successfully cleared the Digikhyber Admission Test. Now you are eligible for a Scholarship Card. To confirm your seat & proceed with your enrolled course. All the courses under the Digikhyber scholarship card are 100% free, but the application processing fee is necessary to complete your application. Your processing fee will be reimbursed if you achieve above 85% Marks in the final evaluation test under the policy of Digikhyber.
+            <p style="font-size: 16px; color: #bbbbbb; line-height: 1.6;">
+              Congratulations! You have successfully cleared the Digikhyber Admission Test with a score of <strong>${testScore}%</strong>. Your challan has been generated successfully. Please find the details below for the payment of your processing fee to claim your Scholarship Card.
             </p>
 
-            <div style="background-color: #f8f9fa; padding: 15px 20px; border-radius: 8px; margin: 15px 0;">
-              <p style="font-size: 15px; color: #555; margin: 0;">
-                <strong>Your Test Score:</strong> <span style="color: #28a745; font-weight: bold;">${testScore}%</span>
-              </p>
-              <p style="font-size: 15px; color: #555; margin: 5px 0 0 0;">
-                <strong>Your Roll Number:</strong> <span style="color: #007bff;">${rollNumber}</span>
-              </p>
-              <p style="font-size: 15px; color: #555; margin: 5px 0 0 0;">
-                <strong>Your Challan Number:</strong> <span style="color: #079560; font-weight: bold;">${challanNumber}</span>
-              </p>
+            <div style="background-color: #25282c; padding: 25px; border-radius: 10px; margin: 25px 0; border: 1px solid #444;">
+              <h3 style="color: #ffffff; margin-top: 0; font-size: 18px; border-bottom: 1px solid #444; padding-bottom: 10px;">Challan Details:</h3>
+              <table width="100%" cellpadding="5" cellspacing="0">
+                <tr>
+                  <td style="color: #aaaaaa; font-size: 15px;">Roll Number:</td>
+                  <td style="color: #3498db; font-size: 15px; font-weight: bold; text-align: right;">${rollNumber}</td>
+                </tr>
+                <tr>
+                  <td style="color: #aaaaaa; font-size: 15px;">Challan Number:</td>
+                  <td style="color: #2ecc71; font-size: 15px; font-weight: bold; text-align: right;">${challanNumber}</td>
+                </tr>
+                <tr>
+                  <td style="color: #aaaaaa; font-size: 15px;">Amount:</td>
+                  <td style="color: #2ecc71; font-size: 15px; font-weight: bold; text-align: right;">PKR 3250</td>
+                </tr>
+                <tr>
+                  <td style="color: #aaaaaa; font-size: 15px;">Payment Type:</td>
+                  <td style="color: #ffffff; font-size: 15px; text-align: right;">Processing Fee</td>
+                </tr>
+                <tr>
+                  <td style="color: #aaaaaa; font-size: 15px;">Status:</td>
+                  <td style="color: #e74c3c; font-size: 15px; font-weight: bold; text-align: right;">Pending Payment</td>
+                </tr>
+              </table>
             </div>
 
-            <div style="background-color: #e9f7ef; border: 1px solid #b2f0c0; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #155724; margin-top: 0;">✅ Benefits of the Scholarship Card:</h3>
-              <ul style="font-size: 14px; color: #155724; padding-left: 20px;">
-                <li>Access to Advanced IT Courses</li>
-                <li>Laptop Scheme</li>
-                <li>Solar Scheme</li>
-                <li>Access to Taleem Finance</li>
-                <li>Access to Study Abroad Free Consultancy</li>
-                <li>Hands-On Learning with Global Curriculum</li>
-                <li>Career Guidance & Freelancing Support</li>
+            <div style="background-color: #1e2a24; border: 1px solid #2d5a43; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h3 style="color: #2ecc71; margin-top: 0; font-size: 18px;">📋 Payment Instructions:</h3>
+              <ul style="font-size: 15px; color: #cccccc; padding-left: 20px; line-height: 1.8;">
+                <li>Login to your dashboard to download the PDF Challan.</li>
+                <li>Visit any branch of the designated bank or use Online Apps.</li>
+                <li>Pay the exact amount of <strong>PKR 3250</strong>.</li>
+                <li>Your Scholarship Card will be issued automatically after payment confirmation.</li>
               </ul>
             </div>
 
-            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #856404; margin-top: 0;">📋 Next Steps to Claim Your Scholarship Card:</h3>
-              <ol style="font-size: 14px; color: #856404; padding-left: 20px;">
-                <li><strong>Submit the Application Processing Fee:</strong> To Claim your Scholarship Card and confirm your seat, please pay the one-time processing fee of PKR 3250.</li>
-                <li><strong>This fee covers the processing and issuance of your Scholarship Card.</strong></li>
-                <li><strong>All your selected courses are 100% free of cost — there are no tuition fees.</strong></li>
-              </ol>
-            </div>
-
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h4 style="color: #333333; margin-top: 0;">💳 Important Note:</h4>
-              <p style="font-size: 14px; color: #555; margin: 0;">
-                For Processing Fee & Payment Methods. Login to your account to complete your Scholarship Card Process:
-              </p>
-            </div>
-
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="https://digikhyber.org.pk/apply-scholarshipcard" style="background-color: #079560; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 5px; margin: 10px; display: inline-block;">
-                Scholarship Card Application Form
+            <div style="text-align: center; margin: 40px 0;">
+              <a href="https://digikhyber.org.pk/login" style="background-color: #079560; color: #ffffff; padding: 15px 35px; text-decoration: none; font-weight: bold; border-radius: 8px; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                Login to Dashboard
               </a>
             </div>
 
-            <div style="background-color: #e9f7ef; border: 1px solid #b2f0c0; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #155724; margin-top: 0;">✅ What Happens Next:</h3>
-              <ul style="font-size: 14px; color: #155724; padding-left: 20px;">
-                <li>After your Processing Fee is confirmed and your application is approved, Then you will get your Scholarship Card.</li>
-                <li>Under Scholarship Card you are eligible for scholarship card Free laptop Scheme , Solar scheme, Taleem Finance, Study Abroad, & Advance IT Courses.</li>
-                <li>You will receive access to the LMS, where you can begin your learning journey.</li>
-                <li>If your application is not approved for any reason, your processing fee will be fully refunded.</li>
-                <li>After successfully completing your courses, you will receive a certificate and job placement assistance.</li>
-              </ul>
-            </div>
-
-            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h4 style="color: #856404; margin-top: 0;">⚠️ Important Note:</h4>
-              <p style="font-size: 14px; color: #856404; margin: 0;">
-                If the fee is not paid, your Scholarship Card will not be issued and your application will be canceled.
-              </p>
-            </div>
-
-            <p style="font-size: 16px; color: #555555;">
-              You're just one step away from receiving your Scholarship Card!<br />
+            <p style="font-size: 14px; color: #777777; text-align: center; margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
+              Thank you for choosing Digikhyber!<br />
               <strong>Team Digikhyber</strong>
             </p>
           </td>
         </tr>
       </table>
+      <div style="text-align: center; padding: 20px; color: #555555; font-size: 12px;">
+        © 2026 Digikhyber. All rights reserved.
+      </div>
     </body>
     </html>
     `;
