@@ -65,19 +65,14 @@ mongoose.connect(config.mongodbUri)
       if (collections.length > 0) {
         console.log('Cleaning up User collection indexes...');
         await mongoose.connection.db.collection('users').dropIndexes();
-        console.log('Indexes dropped successfully. They will be recreated by Mongoose with the new schema.');
+        console.log('Indexes dropped successfully.');
       }
     } catch (err) {
-      console.warn('Note: Could not drop indexes (this is normal if it is a new DB):', err.message);
+      console.warn('Note: Index cleanup skipped:', err.message);
     }
-
-    // Start the server after successful MongoDB connection
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running on port ${PORT}`);
-    });
   })
   .catch(err => {
-    console.error('MongoDB initial connection error:', err.message);
+    console.error('MongoDB connection error:', err.message);
     console.log('Retrying connection in 5 seconds...');
     setTimeout(() => {
       mongoose.connect(config.mongodbUri).catch(() => {});
