@@ -155,12 +155,38 @@ exports.updateTestScore = async (req, res) => {
       });
     }
 
-    // If user passed the test, send an email
+    // If user passed the test, generate challan and send an email
     if (updatedUser.testPassed === true) {
+      let challanNumber = "N/A";
+      
+      try {
+        // Check if user already has a challan
+        let existingChallan = await Challan.findOne({ userId: updatedUser._id });
+        
+        if (!existingChallan) {
+          const amount = 3250;
+          const pdfResult = await generatePDF(updatedUser, amount, updatedUser.courses || updatedUser.physicalCourses);
+          challanNumber = pdfResult.challanNumber;
+
+          const newChallan = new Challan({
+            userId: updatedUser._id,
+            challanId: challanNumber,
+            amount: amount,
+            path: pdfResult.filePath,
+          });
+          await newChallan.save();
+        } else {
+          challanNumber = existingChallan.challanId;
+        }
+      } catch (err) {
+        console.error('[TEST SCORE] Failed to handle challan generation:', err);
+      }
+
       const testPassedHtml = getTestPassedEmailHtml({
         userName: updatedUser.fullName,
         testScore: updatedUser.testScore,
         rollNumber: updatedUser.rollNumber,
+        challanNumber: challanNumber,
       });
 
       sendEmail({
@@ -179,10 +205,12 @@ exports.updateTestScore = async (req, res) => {
 
       return res.status(200).json({
         status: "success",
-        message: "Test score updated successfully",
+        message: "Test score updated successfully. Enrollment email sent.",
         data: {
           testScore: updatedUser.testScore,
           testPassed: updatedUser.testPassed,
+          rollNumber: updatedUser.rollNumber,
+          challanNumber: challanNumber
         },
       });
     }

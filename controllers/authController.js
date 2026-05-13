@@ -171,56 +171,8 @@ exports.signup = async (req, res) => {
 
     await user.save();
 
-    // Automatically generate challan for new registration
-    let challanNumber = null;
-    try {
-      const amount = 3250; // Standard processing fee
-      const pdfResult = await generatePDF(user, amount, user.courses || user.physicalCourses);
-      challanNumber = pdfResult.challanNumber;
-
-      // Save challan to database
-      const challan = new Challan({
-        userId: user._id,
-        challanId: challanNumber,
-        amount: amount,
-        path: pdfResult.filePath,
-      });
-      await challan.save();
-      console.log(`[SIGNUP] Challan ${challanNumber} generated for user: ${user.email}`);
-    } catch (err) {
-      console.error('[SIGNUP] Failed to generate automatic challan:', err);
-    }
-
-    // Send welcome email with professional template
-    const html = getEmailVerifiedHtml({
-      userName: user.fullName,
-      rollNumber: user.rollNumber,
-      challanNumber: challanNumber,
-    });
-
-    console.log(`[SIGNUP] Sending welcome email to: ${user.email}`);
-    
-    // We'll keep it as a background task to keep registration fast
-    sendEmail({
-      email: user.email,
-      subject: "Welcome to Digikhyber - Registration Successful",
-      html: html,
-      message: `Welcome to Digikhyber! Dear ${user.fullName}, your registration is successful. Your Roll Number is ${user.rollNumber}${challanNumber ? ` and your Challan Number is ${challanNumber}` : ''}. You can login at https://digikhyber.org.pk/login`,
-      emailType: 'verification',
-    }).then(emailResult => {
-      if (!emailResult.success) {
-        console.error('[SIGNUP EMAIL] FAILED TO SEND EMAIL:', emailResult.error);
-        console.error('[SIGNUP EMAIL] Detailed Result:', JSON.stringify(emailResult));
-      } else {
-        console.log('[SIGNUP EMAIL] Email sent successfully to:', user.email);
-      }
-    }).catch(err => {
-      console.error('[SIGNUP EMAIL] UNEXPECTED ERROR:', err);
-    });
-
     res.status(201).json({
       message: "User created successfully. You can login now.",
-      emailSent: true,
       user: {
         rollNumber: user.rollNumber,
         email: user.email,

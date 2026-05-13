@@ -2,6 +2,7 @@ function getTestPassedEmailHtml({
   userName,
   testScore,
   rollNumber,
+  challanNumber,
   bannerUrl,
 }) {
   return `
@@ -37,6 +38,9 @@ function getTestPassedEmailHtml({
               </p>
               <p style="font-size: 15px; color: #555; margin: 5px 0 0 0;">
                 <strong>Your Roll Number:</strong> <span style="color: #007bff;">${rollNumber}</span>
+              </p>
+              <p style="font-size: 15px; color: #555; margin: 5px 0 0 0;">
+                <strong>Your Challan Number:</strong> <span style="color: #079560; font-weight: bold;">${challanNumber}</span>
               </p>
             </div>
 
