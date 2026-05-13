@@ -155,9 +155,11 @@ exports.updateTestScore = async (req, res) => {
       });
     }
 
-    // If user passed the test, generate challan and send an email
-    if (updatedUser.testPassed === true) {
-      console.log(`[TEST SCORE] User ${updatedUser.email} passed. Starting post-pass process...`);
+    console.log(`[TEST SCORE] DEBUG: User ${updatedUser.email} has testPassed: ${updatedUser.testPassed} (Type: ${typeof updatedUser.testPassed})`);
+
+    // If user passed the test (check for truthy value)
+    if (updatedUser.testPassed == true || updatedUser.testPassed === "true") {
+      console.log(`[TEST SCORE] User ${updatedUser.email} pass condition met. Starting post-pass process...`);
       let challanNumber = "N/A";
       
       try {
