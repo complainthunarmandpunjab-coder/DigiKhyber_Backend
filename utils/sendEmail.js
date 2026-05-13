@@ -8,14 +8,15 @@ const sendEmail = async (options) => {
     
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.hostinger.com",
-      port: parseInt(process.env.SMTP_PORT) || 465,
-      secure: true,
+      port: parseInt(process.env.SMTP_PORT) || 587,
+      secure: false, // Use STARTTLS
       auth: {
         user: authUser,
         pass: authPass,
       },
       tls: {
         rejectUnauthorized: false,
+        minVersion: "TLSv1.2"
       }
     });
 
