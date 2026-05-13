@@ -1,81 +1,47 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require('resend');
 
 const sendEmail = async (options) => {
   try {
-    // Hostinger requires From address to match Auth user exactly
-    const authUser = process.env.FROM_EMAIL || "noreply@hunarmandpunjab.com";
-    const authPass = process.env.SMTP_PASSWORD;
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const fromName = "Digikhyber";
     
-    let fromName = "Digikhyber";
-    if (options.emailType === "admissions") {
-      fromName = "Digikhyber Admissions";
-    } else if (options.emailType === "contact") {
-      fromName = "Digikhyber Support";
-    }
+    // IMPORTANT: If domain is not verified in Resend, you MUST use 'onboarding@resend.dev'
+    const fromEmail = "onboarding@resend.dev"; 
 
-    const fromEmail = authUser; // Force match
-
-    console.log(`[EMAIL DEBUG] Host: ${process.env.SMTP_HOST}`);
-    const port = parseInt(process.env.SMTP_PORT) || 465;
-    const isSecure = port === 465;
-
-    console.log(`[EMAIL DEBUG] Host: ${process.env.SMTP_HOST}`);
-    console.log(`[EMAIL DEBUG] Port: ${port}`);
-    console.log(`[EMAIL DEBUG] Secure: ${isSecure}`);
-    console.log(`[EMAIL DEBUG] Auth User: ${authUser}`);
+    console.log(`[EMAIL DEBUG] Using Resend API`);
     console.log(`[EMAIL DEBUG] From: "${fromName}" <${fromEmail}>`);
     console.log(`[EMAIL DEBUG] To: ${options.email}`);
     console.log(`[EMAIL DEBUG] Subject: ${options.subject}`);
-    console.log(`[EMAIL DEBUG] Password set: ${authPass ? 'YES' : 'NO'}`);
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: port,
-      secure: isSecure,
-      auth: {
-        user: authUser,
-        pass: authPass,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      }
+    const { data, error } = await resend.emails.send({
+      from: `${fromName} <${fromEmail}>`,
+      to: [options.email],
+      subject: options.subject,
+      html: options.html || options.message,
+      text: options.message,
     });
 
-    // Verify SMTP connection before sending
-    await transporter.verify();
-    console.log("[EMAIL DEBUG] SMTP connection verified successfully!");
+    if (error) {
+      console.error("[EMAIL FAILED] Resend Error:", error);
+      return {
+        success: false,
+        error: error.message,
+        message: "Failed to send email via Resend",
+      };
+    }
 
-    const message = {
-      from: `"${fromName}" <${authUser}>`,
-      to: options.email,
-      subject: options.subject,
-      text: options.message,
-      html: options.html,
-      attachments: options.attachments || [],
-    };
-
-    const info = await transporter.sendMail(message);
-    console.log("[EMAIL SUCCESS] MessageID:", info.messageId);
-    console.log("[EMAIL SUCCESS] Accepted by:", info.accepted);
-
+    console.log("[EMAIL SUCCESS] Resend Message ID:", data.id);
     return {
       success: true,
-      messageId: info.messageId,
-      message: "Email sent successfully",
+      messageId: data.id,
+      message: "Email sent successfully via Resend",
     };
 
   } catch (error) {
-    console.error("[EMAIL FAILED] Error code:", error.code);
-    console.error("[EMAIL FAILED] Error message:", error.message);
-    if (error.response) {
-      console.error("[EMAIL FAILED] SMTP Response:", error.response);
-    }
     console.error("[EMAIL FAILED] Full Error:", error);
-    
     return {
       success: false,
       error: error.message,
-      code: error.code,
       message: "Failed to send email",
     };
   }
