@@ -15,12 +15,15 @@ const app = express();
 const PORT = config.port;
 
 const fs = require('fs');
-if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
-  fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
-}
-
-if (!fs.existsSync(path.join(__dirname, 'images'))) {
-  fs.mkdirSync(path.join(__dirname, 'images'), { recursive: true });
+try {
+  if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
+    fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
+  }
+  if (!fs.existsSync(path.join(__dirname, 'images'))) {
+    fs.mkdirSync(path.join(__dirname, 'images'), { recursive: true });
+  }
+} catch (err) {
+  console.warn("⚠️ Could not create directories (normal on Vercel):", err.message);
 }
 
 

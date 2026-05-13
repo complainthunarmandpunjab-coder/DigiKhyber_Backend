@@ -101,13 +101,18 @@ const generatePDF = async (userData, amount, userCourses) => {
     });
 
     const pdfBytes = await pdfDoc.save();
-    fs.writeFileSync(filePath, pdfBytes);
+    try {
+      fs.writeFileSync(filePath, pdfBytes);
+      console.log("✅ PDF saved:", filePath);
+    } catch (writeError) {
+      console.warn("⚠️ Could not save PDF to disk (normal on Vercel):", writeError.message);
+    }
 
-    console.log("✅ PDF saved:", filePath);
     return { filePath, fileName, challanNumber };
   } catch (error) {
     console.error("❌ PDF generation error:", error);
-    throw error;
+    // Return at least the challanNumber if possible so the process continues
+    return { challanNumber: "ERROR", error: error.message };
   }
 };
 
