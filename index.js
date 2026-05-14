@@ -101,15 +101,6 @@ app.use('/api/scholarship', scholarshipRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Use routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes); 
-app.use('/api/bank', bankRoutes); 
-app.use('/api/scholarship', scholarshipRoutes);
-app.use('/api/contact', contactRoutes);
-app.use('/api/admin', adminRoutes);
-
-
 // Start the server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
