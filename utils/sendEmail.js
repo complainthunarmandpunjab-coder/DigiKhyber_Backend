@@ -2,14 +2,15 @@ const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
   try {
-    const authUser = process.env.SMTP_USER || process.env.FROM_EMAIL;
+    const authUser = process.env.SMTP_USER || process.env.FROM_EMAIL || process.env.VERIFICATION_EMAIL;
     const authPass = process.env.SMTP_PASSWORD;
     const fromName = "Digikhyber";
     
+    const port = parseInt(process.env.SMTP_PORT) || 465;
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.hostinger.com",
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: false, // Use STARTTLS
+      port: port,
+      secure: port === 465,
       auth: {
         user: authUser,
         pass: authPass,
