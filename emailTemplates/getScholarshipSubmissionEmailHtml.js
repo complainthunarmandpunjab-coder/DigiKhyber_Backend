@@ -16,7 +16,7 @@ function getScholarshipSubmissionEmailHtml({
       <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #ddd; margin-top: 20px;">
         <tr>
           <td style="text-align: center;">
-            <img src="https://digikhyber.org.pk/images/email_banner.png" alt="Digikhyber" style="width: 100%; max-width: 600px;" />
+            <img src="https://digikhyber.vercel.app/images/digikhyber-banner.png" alt="Digikhyber" style="width: 100%; max-width: 600px;" />
           </td>
         </tr>
         <tr>

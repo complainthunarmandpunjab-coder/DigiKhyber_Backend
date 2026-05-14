@@ -9,13 +9,8 @@ function getChallanEmailHtml({ userName, challanNumber, amount, bannerUrl }) {
     <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9f9f9;">
       <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #ddd; margin-top: 20px;">
         <tr>
-          <td style="text-align: center; padding: 20px; background: #fff;">
-            <img src="https://digikhyber.vercel.app/images/digikhyber-banner.png" alt="Digikhyber" style="width: 100%; max-width: 580px;" onerror="this.style.display='none'" />
-            <div style="text-align:center; padding: 10px 0;">
-              <span style="font-size:28px; font-weight:900; color:#0B5D3B; letter-spacing:2px;">DIGIKHYBER</span><br/>
-              <span style="font-size:12px; color:#666;">www.digikhyber.pk</span><br/>
-              <span style="font-size:10px; color:#C9A227; font-weight:700; letter-spacing:1px;">ENDORSED BY GOVERNOR OF KHYBER PAKHTUNKHWA</span>
-            </div>
+          <td style="text-align: center; padding: 0; background: #fff;">
+            <img src="https://digikhyber.vercel.app/images/digikhyber-banner.png" alt="Digikhyber" style="width: 100%; max-width: 600px; display: block;" />
           </td>
         </tr>
         <tr>

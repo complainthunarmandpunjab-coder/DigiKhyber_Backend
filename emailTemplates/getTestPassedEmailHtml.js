@@ -16,7 +16,7 @@ function getTestPassedEmailHtml({
       <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #1a1c1e; margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #333;">
         <tr>
           <td style="text-align: center; background-color: #ffffff; padding: 10px;">
-            <img src="https://digikhyber.org.pk/images/email_banner.png" alt="Digikhyber" style="width: 100%; max-width: 500px;" />
+            <img src="https://digikhyber.vercel.app/images/digikhyber-banner.png" alt="Digikhyber" style="width: 100%; max-width: 500px;" />
           </td>
         </tr>
         <tr>
