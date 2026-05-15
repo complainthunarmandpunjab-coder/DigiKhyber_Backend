@@ -54,12 +54,11 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-// MongoDB connection
+// MongoDB connection — start server AFTER DB connects
 mongoose.connect(config.mongodbUri)
   .then(async () => {
     console.log('MongoDB connected successfully');
-    
-    // Drop problematic indexes to resolve stale unique constraint issues
+
     try {
       const collections = await mongoose.connection.db.listCollections({ name: 'users' }).toArray();
       if (collections.length > 0) {
@@ -70,13 +69,15 @@ mongoose.connect(config.mongodbUri)
     } catch (err) {
       console.warn('Note: Index cleanup skipped:', err.message);
     }
+
+    // Start server only after MongoDB is ready
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   })
   .catch(err => {
     console.error('MongoDB connection error:', err.message);
-    console.log('Retrying connection in 5 seconds...');
-    setTimeout(() => {
-      mongoose.connect(config.mongodbUri).catch(() => {});
-    }, 5000);
+    process.exit(1);
   });
 
 // Handle disconnection gracefully (auto-reconnect)
@@ -101,7 +102,3 @@ app.use('/api/scholarship', scholarshipRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Start the server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
