@@ -69,11 +69,11 @@ function getChallanEmailHtml({ userName, challanNumber, amount, bannerUrl }) {
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://digikhyber.org.pk/admission-result" style="background-color: #079560; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 5px; margin: 10px; display: inline-block;">
+              <a href="https://digikhyber.vercel.app/dashboard" style="background-color: #079560; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 5px; margin: 10px; display: inline-block;">
                 View Payment Status
               </a>
               <br>
-              <a href="https://digikhyber.org.pk/contact-us" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 5px; margin: 10px; display: inline-block;">
+              <a href="https://digikhyber.vercel.app/contact" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 5px; margin: 10px; display: inline-block;">
                 Contact Support
               </a>
             </div>
