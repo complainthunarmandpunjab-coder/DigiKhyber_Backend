@@ -193,23 +193,14 @@ exports.updateTestScore = async (req, res) => {
         rollNumber: updatedUser.rollNumber,
         challanNumber: challanNumber,
       });
-      console.log('[TEST SCORE] Sending email...');
-      try {
-        const emailResult = await sendEmail({
-          email: updatedUser.email,
-          subject: "Congratulations! You Have Passed the Admission Test",
-          html: testPassedHtml,
-          emailType: "admissions",
-        });
-
-        if (emailResult.success) {
-          console.log('[TEST SCORE] Email sent successfully to', updatedUser.email);
-        } else {
-          console.error('[TEST SCORE] Email delivery failed:', emailResult.error);
-        }
-      } catch (emailErr) {
-        console.error('[TEST SCORE] Critical email error:', emailErr.message);
-      }
+      // Send email async — don't block response
+      sendEmail({
+        email: updatedUser.email,
+        subject: "Congratulations! You Have Passed the Admission Test",
+        html: testPassedHtml,
+        emailType: "admissions",
+      }).then(r => console.log('[TEST SCORE] Email:', r.success ? 'sent' : r.error))
+        .catch(e => console.error('[TEST SCORE] Email error:', e.message));
     }
 
     return res.status(200).json({
