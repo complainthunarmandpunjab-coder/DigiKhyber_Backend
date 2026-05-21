@@ -298,6 +298,7 @@ exports.getUserData = async (req, res) => {
           txnId: challan.txnId,
           txnDate: challan.txnDate,
           secondEnrollChallan: challan.secondEnrollChallan,
+          psid: challan.psid || null,
           createdAt: challan.createdAt,
           updatedAt: challan.updatedAt,
         })),
@@ -552,6 +553,69 @@ exports.generatePsid = async (req, res) => {
   } catch (error) {
     console.error("PSID generation error:", error);
     res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+// ─── GET ALL USERS (Admin Dashboard) ──────────────────────────
+exports.getAllUsers = async (req, res) => {
+  try {
+    const {
+      page     = 1,
+      limit    = 10,
+      search   = '',
+      verified,
+      testPassed,
+    } = req.query;
+
+    const query = {};
+
+    // Search by name, CNIC, email, roll number
+    if (search) {
+      query.$or = [
+        { fullName:   { $regex: search, $options: 'i' } },
+        { cnic:       { $regex: search, $options: 'i' } },
+        { email:      { $regex: search, $options: 'i' } },
+        { mobile:     { $regex: search, $options: 'i' } },
+        { rollNumber: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (verified !== undefined)   query.isVerified  = verified === 'true';
+    if (testPassed !== undefined) query.testPassed  = testPassed === 'true';
+
+    const total = await User.countDocuments(query);
+    const users = await User.find(query)
+      .select('-password -verifyToken -resetPasswordToken -resetPasswordExpire')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
+    res.json({
+      success: true,
+      data:       users,
+      total,
+      page:       parseInt(page),
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ─── GET SINGLE USER BY ID (Admin Dashboard) ──────────────────
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select('-password -verifyToken -resetPasswordToken -resetPasswordExpire');
+
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    // Also get their challans
+    const challans = await Challan.find({ userId: user._id });
+
+    res.json({ success: true, data: user, challans });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
