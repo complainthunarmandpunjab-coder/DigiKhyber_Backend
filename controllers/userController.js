@@ -527,19 +527,29 @@ exports.generatePsid = async (req, res) => {
       });
     }
 
-    // Generate a random 15-digit PSID for 1Bill
-    const psid = "1000" + Math.floor(Math.random() * 90000000000 + 10000000000).toString();
+    // Derive the 8-digit challan reference for this user
+    let challanId8;
+    if (challan && challan.challanId && !String(challan.challanId).startsWith('CH-')) {
+      challanId8 = String(challan.challanId).padStart(8, '0');
+    } else {
+      // No bank challan yet — generate a fresh 8-digit ID
+      const shortTime = Date.now().toString().slice(-5);
+      const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      challanId8 = shortTime + rand;
+    }
+
+    // PSID = 7-digit prefix + 8-digit challan ID = 15 digits
+    // Last 8 digits always match the bank challan ID
+    const psid = "1000000" + challanId8;
 
     if (!challan) {
-      // Create new challan if none exists
       challan = new Challan({
         userId: user._id,
-        challanId: "CH-" + Date.now(),
+        challanId: challanId8,
         amount: amount,
         psid: psid
       });
     } else {
-      // Update existing challan with PSID
       challan.psid = psid;
     }
 
