@@ -124,27 +124,24 @@ const userSchema = new mongoose.Schema(
 userSchema.statics.generateRollNumber = async function (
   isSecondEnroll = false
 ) {
-  const year = new Date().getFullYear();
   let attempts = 0;
   const maxAttempts = 50;
 
-  // Regex for existing roll numbers in this year
-  const yearRegex = new RegExp(`^DK(-B2)?-${year}-\\d{3}-\\d{3}`);
+  // Regex for new roll number format: DK-B1-XXXXXXX
+  const newFormatRegex = /^DK-B1-\d{7}$/;
 
-  // Count how many roll numbers exist this year
+  // Count how many new format roll numbers exist
   const count = await this.countDocuments({
-    rollNumber: { $regex: yearRegex },
+    rollNumber: { $regex: newFormatRegex },
   });
 
   while (attempts < maxAttempts) {
-    const sequential = String(count + attempts + 1).padStart(3, "0");
-    const randomNum = Math.floor(Math.random() * 900) + 100; // 100-999
+    // Start from 10000
+    const num = count + attempts + 10000;
+    // Pad to 7 digits (e.g. 0010000)
+    const sequential = String(num).padStart(7, "0");
 
-    // Insert B2 immediately after HM if second enrollment
-    let rollNumber = "DK";
-    if (isSecondEnroll) rollNumber += "-B2";
-
-    rollNumber += `-${year}-${sequential}-${randomNum}`;
+    let rollNumber = `DK-B1-${sequential}`;
 
     // Ensure uniqueness
     const existingUser = await this.findOne({ rollNumber });
