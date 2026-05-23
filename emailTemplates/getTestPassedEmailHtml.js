@@ -73,7 +73,7 @@ function getTestPassedEmailHtml({ userName, testScore, rollNumber, challanNumber
                 Login to Dashboard
               </a>
               <br>
-              <a href="https://digikhyber.vercel.app/contact" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 5px; margin: 10px; display: inline-block;">
+              <a href="https://digikhyber.vercel.app/contact-us" style="background-color: #007bff; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 5px; margin: 10px; display: inline-block;">
                 Contact Support
               </a>
             </div>

@@ -161,6 +161,8 @@ exports.updateTestScore = async (req, res) => {
     if (updatedUser.testPassed == true || updatedUser.testPassed === "true") {
       console.log(`[TEST SCORE] User ${updatedUser.email} pass condition met. Starting post-pass process...`);
       let challanNumber = "N/A";
+      let challanPath = null;
+      let challanFileName = null;
       
       try {
         let existingChallan = await Challan.findOne({ userId: updatedUser._id });
@@ -169,17 +171,21 @@ exports.updateTestScore = async (req, res) => {
           const amount = 3250;
           const pdfResult = await generatePDF(updatedUser, amount, updatedUser.courses || updatedUser.physicalCourses);
           challanNumber = pdfResult.challanNumber;
+          challanPath = pdfResult.filePath;
+          challanFileName = pdfResult.fileName;
 
           const newChallan = new Challan({
             userId: updatedUser._id,
             challanId: challanNumber,
             amount: amount,
-            path: pdfResult.filePath,
+            path: challanPath,
           });
           await newChallan.save();
           console.log(`[TEST SCORE] Challan ${challanNumber} saved to DB.`);
         } else {
           challanNumber = existingChallan.challanId;
+          challanPath = existingChallan.path;
+          challanFileName = existingChallan.path ? existingChallan.path.split("/").pop() : `Challan-${challanNumber}.pdf`;
           console.log(`[TEST SCORE] Using existing challan: ${challanNumber}`);
         }
       } catch (err) {
@@ -193,13 +199,27 @@ exports.updateTestScore = async (req, res) => {
         rollNumber: updatedUser.rollNumber,
         challanNumber: challanNumber,
       });
-      // Send email async — don't block response
-      sendEmail({
+      
+      // Attach the PDF if it exists
+      const emailOptions = {
         email: updatedUser.email,
         subject: "Congratulations! You Have Passed the Admission Test",
         html: testPassedHtml,
         emailType: "admissions",
-      }).then(r => console.log('[TEST SCORE] Email:', r.success ? 'sent' : r.error))
+      };
+      
+      if (challanPath) {
+        emailOptions.attachments = [
+          {
+            filename: challanFileName,
+            path: challanPath,
+          }
+        ];
+      }
+
+      // Send email async — don't block response
+      sendEmail(emailOptions)
+        .then(r => console.log('[TEST SCORE] Email:', r.success ? 'sent' : r.error))
         .catch(e => console.error('[TEST SCORE] Email error:', e.message));
     }
 

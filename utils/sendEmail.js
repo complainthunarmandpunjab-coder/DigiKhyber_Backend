@@ -33,6 +33,10 @@ const sendEmail = async (options) => {
       html: options.html,
     };
 
+    if (options.attachments) {
+      mailOptions.attachments = options.attachments;
+    }
+
     const info = await transporter.sendMail(mailOptions);
     console.log("[EMAIL SUCCESS] Message ID:", info.messageId);
     
