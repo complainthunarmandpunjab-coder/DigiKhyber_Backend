@@ -3,6 +3,9 @@ const path = require("path");
 const PDFDocument = require("pdfkit");
 const Challan = require("../models/Challan");
 
+const LOGO_PATH = path.join(__dirname, "../images/logo.png");
+const BOP_LOGO_PATH = path.join(__dirname, "../images/bop-logo.png");
+
 const generatePDF = async (userData, amount, userCourses) => {
   try {
     const uploadsDir = path.join(__dirname, "../uploads");
@@ -24,123 +27,212 @@ const generatePDF = async (userData, amount, userCourses) => {
     const fileName = `challan-${challanNumber}.pdf`;
     const filePath = path.join(uploadsDir, fileName);
 
-    const issueDate = new Date().toLocaleDateString("en-US");
-    const dueDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US");
+    const now = new Date();
+    const due = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const fmt = (d) => {
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yy = d.getFullYear();
+      return `${dd} / ${mm} / ${yy}`;
+    };
+    const issueDate = fmt(now);
+    const dueDate = fmt(due);
 
-    let courses = [];
-    if (Array.isArray(userCourses) && userCourses.length > 0) {
-      courses = userCourses.filter(Boolean);
-    }
-    if (courses.length === 0) courses = ["-"];
-
-    const note = "All courses of Digikhyber are totally free of cost. Only processing charges will be paid by student and will be reimbursed after completion of final evaluation test according to the policy of Digikhyber.\n\nChallan payments can be made at any Bank of Punjab branch using the Cash Management Solution.";
+    let courses = (Array.isArray(userCourses) ? userCourses : []).filter(Boolean);
+    if (courses.length === 0) courses = ["General IT Program"];
 
     await new Promise((resolve, reject) => {
-      const doc = new PDFDocument({ size: "A4", margin: 0 });
+      // A4 Landscape
+      const doc = new PDFDocument({ size: "A4", layout: "landscape", margin: 0 });
       const stream = fs.createWriteStream(filePath);
       doc.pipe(stream);
 
+      // Page dimensions: 841.89 x 595.28
+      const pageW = 841.89;
+      const pageH = 595.28;
+      const margin = 6;
+      const gap = 4;
+      const colW = (pageW - margin * 2 - gap * 2) / 3; // ~274
+      const colH = pageH - margin * 2;
+
       const copies = [
-        { x: 20,  label: "Bank Copy" },
-        { x: 215, label: "Office Copy" },
-        { x: 410, label: "Student Copy" },
+        { x: margin,                       label: "BANK COPY",    barColor: "#2d6a2d",  barBg: "#2d6a2d"  },
+        { x: margin + colW + gap,          label: "OFFICE COPY",  barColor: "#1a3565",  barBg: "#1a3565"  },
+        { x: margin + (colW + gap) * 2,    label: "STUDENT COPY", barColor: "#1a6b6b",  barBg: "#1a6b6b"  },
       ];
 
-      const colW = 190;
-      const startY = 30;
+      copies.forEach(({ x, label, barColor }) => {
+        let y = margin;
 
-      copies.forEach(({ x, label }) => {
-        // Border
-        doc.rect(x, startY, colW, 760).stroke();
+        // ── Outer border ──
+        doc.rect(x, y, colW, colH).lineWidth(0.6).stroke("#aaaaaa");
 
-        // Header row
-        doc.fontSize(7).font("Helvetica-Bold")
-          .text("DIGIKHYBER", x + 5, startY + 5, { width: colW - 10, align: "center" });
-        doc.fontSize(6).font("Helvetica")
-          .text(label, x + 5, startY + 16, { width: colW - 10, align: "center" });
-        doc.fontSize(6).font("Helvetica")
-          .text("www.digikhyber.pk", x + 5, startY + 25, { width: colW - 10, align: "center" });
+        // ── Challan No box (top right) ──
+        const challanBoxW = 110;
+        const challanBoxH = 16;
+        doc.rect(x + colW - challanBoxW - 4, y + 3, challanBoxW, challanBoxH)
+          .lineWidth(0.5).stroke("#888888");
+        doc.fontSize(6).font("Helvetica-Bold").fillColor("#333333")
+          .text("Challan No:", x + colW - challanBoxW, y + 7, { width: 35, align: "left" });
+        doc.fontSize(6.5).font("Helvetica-Bold").fillColor("#0B5D3B")
+          .text(challanNumber, x + colW - challanBoxW + 36, y + 7, { width: 70, align: "left" });
 
-        // Challan No box
-        doc.rect(x + 5, startY + 34, colW - 10, 14).stroke();
-        doc.fontSize(6).font("Helvetica-Bold")
-          .text(`Challan No: ${challanNumber}`, x + 8, startY + 38);
+        y += 22;
 
-        // Horizontal line
-        doc.moveTo(x, startY + 50).lineTo(x + colW, startY + 50).stroke();
+        // ── Logo row ──
+        const logoH = 38;
+        // DigiKhyber logo (left)
+        if (fs.existsSync(LOGO_PATH)) {
+          doc.image(LOGO_PATH, x + 6, y, { height: logoH, fit: [50, logoH] });
+        }
+        // Title (center)
+        doc.fontSize(10).font("Helvetica-Bold").fillColor("#0B5D3B")
+          .text("DIGIKHYBER", x + 58, y + 4, { width: colW - 116, align: "center" });
+        doc.fontSize(6.5).font("Helvetica").fillColor("#444444")
+          .text("TRAINING PROGRAM", x + 58, y + 17, { width: colW - 116, align: "center" });
+        // Bank of Punjab logo (right)
+        if (fs.existsSync(BOP_LOGO_PATH)) {
+          doc.image(BOP_LOGO_PATH, x + colW - 52, y, { height: logoH, fit: [44, logoH] });
+        } else {
+          // Placeholder if BOP logo not found
+          doc.rect(x + colW - 52, y + 2, 44, 32).lineWidth(0.5).stroke("#888888");
+          doc.fontSize(5).font("Helvetica-Bold").fillColor("#1a3565")
+            .text("BANK OF", x + colW - 52, y + 8, { width: 44, align: "center" });
+          doc.fontSize(5).font("Helvetica-Bold").fillColor("#1a3565")
+            .text("PUNJAB", x + colW - 52, y + 16, { width: 44, align: "center" });
+        }
 
-        // User details
-        const detailY = startY + 54;
+        y += logoH + 4;
+
+        // ── Tagline ──
+        doc.moveTo(x + 8, y).lineTo(x + colW / 2 - 40, y).lineWidth(0.4).stroke("#aaaaaa");
+        doc.moveTo(x + colW / 2 + 40, y).lineTo(x + colW - 8, y).lineWidth(0.4).stroke("#aaaaaa");
+        doc.fontSize(5.5).font("Helvetica").fillColor("#777777")
+          .text("EMPOWERING SKILLS, BUILDING FUTURES", x + 4, y - 3, { width: colW - 8, align: "center" });
+
+        y += 10;
+
+        // ── Copy label bar ──
+        doc.rect(x + 4, y, colW - 8, 18).fillColor(barColor).fill();
+        doc.fontSize(8).font("Helvetica-Bold").fillColor("#ffffff")
+          .text(label, x + 4, y + 4, { width: colW - 8, align: "center" });
+        // Copy icon
+        doc.fillColor("#ffffff").fontSize(10);
+
+        y += 24;
+
+        // ── User details (no colons) ──
         const fields = [
-          { label: "Name:", value: userData.fullName || "-" },
-          { label: "Father Name:", value: userData.fatherName || "-" },
-          { label: "Phone Number:", value: userData.mobile || "-" },
-          { label: "Email:", value: userData.email || "-" },
+          { label: "Name",         value: userData.fullName  || "-" },
+          { label: "Father Name",  value: userData.fatherName || "-" },
+          { label: "Phone Number", value: userData.mobile    || "-" },
+          { label: "Email",        value: userData.email     || "-" },
         ];
 
         fields.forEach((f, i) => {
-          const y = detailY + i * 16;
-          doc.fontSize(6).font("Helvetica-Bold").text(f.label, x + 5, y);
-          doc.fontSize(6).font("Helvetica").text(f.value, x + 55, y, { width: colW - 60, ellipsis: true });
-          doc.moveTo(x + 55, y + 9).lineTo(x + colW - 5, y + 9).stroke();
+          const fy = y + i * 16;
+          doc.fontSize(6).font("Helvetica-Bold").fillColor("#333333")
+            .text(f.label, x + 6, fy + 2, { width: 55 });
+          doc.moveTo(x + 62, fy + 8).lineTo(x + colW - 6, fy + 8).lineWidth(0.3).stroke("#cccccc");
+          doc.fontSize(6).font("Helvetica").fillColor("#111111")
+            .text(f.value, x + 64, fy + 2, { width: colW - 72, ellipsis: true });
         });
 
-        // Dates
-        const dateY = detailY + fields.length * 16 + 4;
-        doc.fontSize(6).font("Helvetica-Bold").text("Issue Date:", x + 5, dateY);
-        doc.fontSize(6).font("Helvetica").text(issueDate, x + 40, dateY);
-        doc.fontSize(6).font("Helvetica-Bold").text("Due Date:", x + 100, dateY);
-        doc.fontSize(6).font("Helvetica").text(dueDate, x + 130, dateY);
+        y += fields.length * 16 + 6;
 
-        // Fee Voucher header
-        const tableY = dateY + 18;
-        doc.rect(x + 5, tableY, colW - 10, 14).fillAndStroke("#0B5D3B", "#0B5D3B");
-        doc.fontSize(7).font("Helvetica-Bold").fillColor("white")
-          .text("Fee Voucher", x + 5, tableY + 3, { width: colW - 10, align: "center" });
-        doc.fillColor("black");
+        // ── Date row ──
+        doc.rect(x + 4, y, colW - 8, 18).lineWidth(0.4).stroke("#dddddd");
+        doc.fontSize(5.5).font("Helvetica-Bold").fillColor("#333333")
+          .text("Issue Date", x + 8, y + 2);
+        doc.fontSize(6).font("Helvetica").fillColor("#0B5D3B")
+          .text(issueDate, x + 8, y + 9);
+        doc.moveTo(x + colW / 2, y + 2).lineTo(x + colW / 2, y + 16).lineWidth(0.3).stroke("#dddddd");
+        doc.fontSize(5.5).font("Helvetica-Bold").fillColor("#333333")
+          .text("Due Date", x + colW / 2 + 4, y + 2);
+        doc.fontSize(6).font("Helvetica").fillColor("#c0392b")
+          .text(dueDate, x + colW / 2 + 4, y + 9);
 
-        // Table headers
-        const thY = tableY + 16;
-        doc.rect(x + 5, thY, 20, 12).stroke();
-        doc.rect(x + 25, thY, 115, 12).stroke();
-        doc.rect(x + 140, thY, colW - 145, 12).stroke();
-        doc.fontSize(5.5).font("Helvetica-Bold")
-          .text("Sr.No", x + 6, thY + 3)
-          .text("Course", x + 26, thY + 3)
-          .text("Amount", x + 141, thY + 3);
+        y += 24;
 
-        // Course rows
-        let rowY = thY + 12;
-        courses.forEach((course, idx) => {
-          doc.rect(x + 5, rowY, 20, 11).stroke();
-          doc.rect(x + 25, rowY, 115, 11).stroke();
-          doc.rect(x + 140, rowY, colW - 145, 11).stroke();
-          doc.fontSize(5).font("Helvetica")
-            .text((idx + 1).toString(), x + 8, rowY + 3)
-            .text(course.length > 28 ? course.substring(0, 28) + "..." : course, x + 27, rowY + 3)
-            .text("0", x + 145, rowY + 3);
-          rowY += 11;
+        // ── Fee table ──
+        // Header bar
+        doc.rect(x + 4, y, colW - 8, 16).fillColor("#0B5D3B").fill();
+        const srW = 22, amtW = 48, courseW = colW - 8 - srW - amtW;
+        doc.fontSize(6).font("Helvetica-Bold").fillColor("#ffffff")
+          .text("Sr. No", x + 6, y + 4, { width: srW, align: "center" })
+          .text("Course / Program", x + 6 + srW, y + 4, { width: courseW, align: "center" })
+          .text("Amount (PKR)", x + 6 + srW + courseW, y + 4, { width: amtW, align: "center" });
+
+        y += 16;
+
+        // Draw 5 course rows
+        const maxRows = 5;
+        for (let r = 0; r < maxRows; r++) {
+          const rowBg = r % 2 === 0 ? "#f9f9f9" : "#ffffff";
+          doc.rect(x + 4, y, colW - 8, 13).fillColor(rowBg).fill();
+          doc.rect(x + 4, y, colW - 8, 13).lineWidth(0.3).stroke("#dddddd");
+          // vertical dividers
+          doc.moveTo(x + 4 + srW, y).lineTo(x + 4 + srW, y + 13).stroke("#dddddd");
+          doc.moveTo(x + 4 + srW + courseW, y).lineTo(x + 4 + srW + courseW, y + 13).stroke("#dddddd");
+
+          const course = courses[r];
+          doc.fontSize(5.5).font("Helvetica").fillColor("#333333")
+            .text(String(r + 1), x + 6, y + 3, { width: srW, align: "center" });
+          if (course) {
+            const courseText = course.length > 32 ? course.substring(0, 32) + "…" : course;
+            doc.fontSize(5.5).font("Helvetica").fillColor("#222222")
+              .text(courseText, x + 8 + srW, y + 3, { width: courseW - 4 });
+            doc.fontSize(5.5).font("Helvetica").fillColor("#0B5D3B")
+              .text("Free", x + 6 + srW + courseW, y + 3, { width: amtW, align: "center" });
+          }
+          y += 13;
+        }
+
+        // Total row
+        doc.rect(x + 4, y, colW - 8, 14).fillColor("#eaf4ee").fill();
+        doc.rect(x + 4, y, colW - 8, 14).lineWidth(0.3).stroke("#0B5D3B");
+        doc.fontSize(6.5).font("Helvetica-Bold").fillColor("#333333")
+          .text("TOTAL", x + 8, y + 3, { width: colW - 8 - amtW - 12, align: "right" });
+        doc.fontSize(6.5).font("Helvetica-Bold").fillColor("#0B5D3B")
+          .text(`PKR ${amount.toLocaleString()}`, x + 4 + srW + courseW, y + 3, { width: amtW, align: "center" });
+
+        y += 20;
+
+        // ── Note ──
+        doc.rect(x + 4, y, colW - 8, 12).fillColor(barColor).fill();
+        doc.fontSize(6).font("Helvetica-Bold").fillColor("#ffffff")
+          .text("Note:", x + 8, y + 2);
+
+        y += 14;
+
+        const notes = [
+          "All courses under Digikhyber scholarship are 100% free of cost.",
+          "Processing fee will be reimbursed upon achieving above 85% in final evaluation.",
+          "Challan is valid only for the due date mentioned above.",
+          "Please deposit the fee at any Bank of Punjab (BOP) branch.",
+          "Keep this receipt safe for future reference.",
+        ];
+        notes.forEach((n) => {
+          doc.fontSize(5).font("Helvetica").fillColor("#333333")
+            .text(`• ${n}`, x + 6, y, { width: colW - 12 });
+          y += 9;
         });
 
-        // Processing fee row
-        doc.rect(x + 5, rowY, 20, 11).stroke();
-        doc.rect(x + 25, rowY, 115, 11).stroke();
-        doc.rect(x + 140, rowY, colW - 145, 11).stroke();
-        doc.fontSize(5).font("Helvetica-Bold")
-          .text("Total", x + 8, rowY + 3)
-          .text("Processing Fee", x + 27, rowY + 3)
-          .text(amount.toString(), x + 141, rowY + 3);
-        rowY += 11;
+        y += 6;
 
-        // Total
-        doc.fontSize(8).font("Helvetica-Bold")
-          .text(`Total:  Rs. ${amount}`, x + 5, rowY + 6, { width: colW - 10, align: "right" });
-
-        // Note
-        const noteY = rowY + 24;
-        doc.fontSize(5).font("Helvetica-Bold").text("Note:", x + 5, noteY);
-        doc.fontSize(4.5).font("Helvetica")
-          .text(note, x + 5, noteY + 8, { width: colW - 10, align: "left" });
+        // ── Footer ──
+        doc.moveTo(x + 4, y).lineTo(x + colW - 4, y).lineWidth(0.4).stroke("#cccccc");
+        y += 5;
+        doc.fontSize(5.5).font("Helvetica").fillColor("#0B5D3B")
+          .text("🌐  www.digikhyber.pk", x + 6, y);
+        doc.fontSize(5.5).font("Helvetica").fillColor("#0B5D3B")
+          .text("📞  091-111-344-777", x + colW / 2, y);
+        y += 12;
+        doc.rect(x + 4, y, colW - 8, 14).fillColor("#f0f7f2").fill();
+        doc.fontSize(5.5).font("Helvetica").fillColor("#333333")
+          .text("Thank you for being a part of ", x + 6, y + 3, { continued: true })
+          .font("Helvetica-Bold").fillColor("#0B5D3B")
+          .text("Digikhyber Training Program.", { width: colW - 12 });
       });
 
       doc.end();
@@ -148,7 +240,7 @@ const generatePDF = async (userData, amount, userCourses) => {
       stream.on("error", reject);
     });
 
-    console.log("✅ Digikhyber challan PDF saved:", filePath);
+    console.log("✅ Challan PDF saved:", filePath);
     return { filePath, fileName, challanNumber };
 
   } catch (error) {
