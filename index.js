@@ -43,6 +43,9 @@ console.log("PORT",PORT);
 // Apply CORS middleware
 app.use(cors());
 
+// Health check — UptimeRobot pings this to keep Render awake
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
